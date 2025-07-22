@@ -87,5 +87,5 @@ ax = fig.add_subplot(1,1,1)
 for i in range(len(E_movie)):
     im, = ax.plot(E_movie[i],color = 'red')
     frames.append([im])
-ani = animation.ArtistAnimation(fig, frames, interval=30, blit=True, repeat_delay=1000)
+ani = animation.ArtistAnimation(fig, frames, interval=20, blit=True, repeat_delay=1000)
 plt.show()
