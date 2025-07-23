@@ -20,21 +20,19 @@ sources = [mp.Source(mp.ContinuousSource(frequency=0.15),
                      component=mp.Ez,
                      center=mp.Vector3(-7,0))]
 
-#This deals with boundary conditions, in this casem absorbs all waves at the edges.
-pml_layers = [mp.PML(1.0)]
+# Using perfect conductor boundary conditions (default) - waves will reflect at the edges
+# No PML layers needed for resonant cavity
 
 # Discretize what was created above, giving 10 pixels/um
 resolution = 10
 
 # Create the simulation object
 sim = mp.Simulation(cell_size=cell,
-                    boundary_layers=pml_layers,
                     geometry=geometry,
                     sources=sources,
                     resolution=resolution)
-
 sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(size_x, size_y,0)))
-plt.savefig("sim.png")
+plt.savefig("cavity_geometry.png")
 plt.close()
 
 animate = mp.Animate2D(fields=mp.Ez,  # Field to animate
@@ -47,30 +45,6 @@ animate = mp.Animate2D(fields=mp.Ez,  # Field to animate
 sim.run(mp.at_every(0.2, animate),  # Run the simulation with the animation every 0.2 time units
         until=200)  # Run for 200 time units
 
-# Save as MP4
-animate.to_mp4(fps=10, filename="waveguide_animation.mp4")  # Save the animation to a GIF file
+# Save as GIF (doesn't require ffmpeg)
+animate.to_mp4(fps=10, filename="cavity_resonance_animation.mp4")
 plt.close()  # Close the plot to free up memory
-
-
-"""
-# Runs the simulation for 200 time units
-sim.run(mp.at_beginning(mp.output_epsilon),
-        mp.to_appended("ez", mp.at_every(0.6, mp.output_efield_z)),
-        until=200)
-
-# Plotting the results
-# Get a slice of the electric field data and display the results
-eps_data = sim.get_array(center=mp.Vector3(), size=cell, component=mp.Dielectric)
-plt.figure()
-plt.imshow(eps_data.transpose(), interpolation='spline36', cmap='binary')
-plt.axis('off')
-plt.show()
-
-# Plot the scalar electric field Ez. Dark red - negative, white - zero, dark blue - positive
-ez_data = sim.get_array(center=mp.Vector3(), size=cell, component=mp.Ez)
-plt.figure()
-plt.imshow(eps_data.transpose(), interpolation='spline36', cmap='binary')
-plt.imshow(ez_data.transpose(), interpolation='spline36', cmap='RdBu', alpha=0.9)
-plt.axis('off')
-plt.show()
-"""
