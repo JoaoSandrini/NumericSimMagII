@@ -1,10 +1,12 @@
 import meep as mp
+import scipy.constants
 import numpy as np
 import matplotlib.pyplot as plt
 
 size_x = 16  # Length of the waveguide in the x direction (in micrometers)
-size_y = 8   # Width of the waveguide in the y direction (in mic
-cell = mp.Vector3(size_x,size_y,0) #16um length in x dir and 8um in y dir - simulation object cells
+size_y = 8 # Width of the waveguide in the y direction (in mic
+size_z = 1  
+cell = mp.Vector3(size_x,size_y,size_z) #16um length in x dir and 8um in y dir - simulation object cells
 
 # Define the waveguide geometry
 # Waveguide block with a width of infinite x 1 x infinite, eps = 12, centered at (0,0)
@@ -12,13 +14,16 @@ geometry = [mp.Block(mp.Vector3(mp.inf,1,mp.inf),
             center=mp.Vector3(),
             material=mp.Medium(epsilon=12))]
 
+resonance_frequency_Hz = (scipy.constants.c / 2) * np.sqrt((1/size_x**2)+(1/size_y**2)+(1/size_z**2)) * 1e6
+resonance_frequency_meep = resonance_frequency_Hz * 1e-6 / scipy.constants.c
+
 # Creates a source of EMW
 # Single point source, centered at (-7,0) with a exp(-iwt) sinusoidal format.
 # Frequency of 0.15 means a wavelength of about 6.67um. 
 # In vacuum, lambdavac = 1/0.15, for the material, lambda = lambdavac/sqrt(eps)
-sources = [mp.Source(mp.ContinuousSource(frequency=0.15),
+sources = [mp.Source(mp.ContinuousSource(frequency=resonance_frequency_meep),
                      component=mp.Ez,
-                     center=mp.Vector3(-7,0))]
+                     center=mp.Vector3(0,0))]
 
 # Using perfect conductor boundary conditions (default) - waves will reflect at the edges
 # No PML layers needed for resonant cavity
